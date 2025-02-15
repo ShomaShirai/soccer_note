@@ -12,6 +12,7 @@ class Formation extends StatefulWidget {
 
 class _FormationState extends State<Formation> {
   List<Player> players = [];
+  final GlobalKey _fieldKey = GlobalKey();
   final TextEditingController individualGoodController = TextEditingController();
   final TextEditingController individualBadController = TextEditingController();
   final TextEditingController teamGoodController = TextEditingController();
@@ -24,22 +25,20 @@ class _FormationState extends State<Formation> {
   }
 
   void _initializeFormation() {
-    double width = 400; // フィールド横幅
-    double height = 400; // フィールド縦幅
-    double xCenter = width / 2;
+    double xCenter = 180;
 
     List<Offset> positions = [
-      Offset(xCenter, height * 0.85), // GK
-      Offset(xCenter - 100, height * 0.65), // DF
-      Offset(xCenter + 100, height * 0.65),
-      Offset(xCenter - 50, height * 0.7),
-      Offset(xCenter + 50, height * 0.7), 
-      Offset(xCenter - 100, height * 0.45), // MF
-      Offset(xCenter + 100, height * 0.45),
-      Offset(xCenter - 50, height * 0.5),
-      Offset(xCenter + 50, height * 0.5), 
-      Offset(xCenter - 50, height * 0.3), // FW
-      Offset(xCenter + 50, height * 0.3), 
+      Offset(xCenter, 280), // GK
+      Offset(xCenter - 100, 230), // DF
+      Offset(xCenter + 100, 230),
+      Offset(xCenter - 50, 250),
+      Offset(xCenter + 50, 250), 
+      Offset(xCenter - 100, 170), // MF
+      Offset(xCenter + 100, 170),
+      Offset(xCenter - 50, 190),
+      Offset(xCenter + 50, 190), 
+      Offset(xCenter - 50, 100), // FW
+      Offset(xCenter + 50, 100), 
     ];
 
     players = List.generate(
@@ -49,8 +48,15 @@ class _FormationState extends State<Formation> {
   }
 
   void _updatePosition(int index, Offset newPosition) {
+    final RenderBox fieldBox = _fieldKey.currentContext!.findRenderObject() as RenderBox;
+    final fieldSize = fieldBox.size;
+    final fieldOffset = fieldBox.localToGlobal(Offset.zero);
+
+    double clampedX = newPosition.dx.clamp(fieldOffset.dx, fieldOffset.dx + fieldSize.width - 40);
+    double clampedY = newPosition.dy.clamp(fieldOffset.dy, fieldOffset.dy + fieldSize.height - 40);
+
     setState(() {
-      players[index].position = newPosition;
+      players[index].position = Offset(clampedX - fieldOffset.dx, clampedY - fieldOffset.dy);
     });
   }
 
@@ -104,49 +110,42 @@ class _FormationState extends State<Formation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('フォーメーション'),
-      ),
+      appBar: AppBar(title: const Text('フォーメーション')),
       body: Column(
         children: [
           Expanded(
-            child: Stack(
-              children: [
-                Center(
-                  child: Image.asset('assets/images/coat2.jpg', width: 600, height: 400),
-                ),
-                ...players.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  Player player = entry.value;
-
-                  return Positioned(
-                    left: player.position.dx,
-                    top: player.position.dy,
-                    child: GestureDetector(
-                      onLongPress: () => _editPlayer(index),
-                      child: Draggable<int>(
-                        data: index,
-                        feedback: _buildPlayer(player, isDragging: true),
-                        childWhenDragging: const SizedBox.shrink(),
-                        child: _buildPlayer(player),
+            child: Center(
+              child: Stack(
+                key: _fieldKey,
+                children: [
+                  Image.asset('assets/images/coat2.jpg', width: 400, height: 400),
+                  ...players.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    Player player = entry.value;
+                    return Positioned(
+                      left: player.position.dx,
+                      top: player.position.dy,
+                      child: GestureDetector(
+                        onLongPress: () => _editPlayer(index), // 長押しで編集できるようにする
+                        child: Draggable<int>(
+                          data: index,
+                          feedback: _buildPlayer(player, isDragging: true),
+                          childWhenDragging: const SizedBox.shrink(),
+                          child: _buildPlayer(player),
+                        ),
                       ),
+                    );
+                  }).toList(),
+                  Positioned.fill(
+                    child: DragTarget<int>(
+                      builder: (context, candidateData, rejectedData) => Container(),
+                      onAcceptWithDetails: (details) {
+                        _updatePosition(details.data, details.offset);
+                      },
                     ),
-                  );
-                }).toList(),
-                Positioned.fill(
-                  child: DragTarget<int>(
-                    builder: (context, candidateData, rejectedData) {
-                      return Container();
-                    },
-                    onAcceptWithDetails: (details) {
-                      RenderBox renderBox = context.findRenderObject() as RenderBox;
-                      Offset localOffset = renderBox.globalToLocal(details.offset);
-                      _updatePosition(details.data, localOffset);
-                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           _buildCommentSection(),
