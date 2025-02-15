@@ -24,7 +24,7 @@ class _LoginState extends State<Login> {
         backgroundColor: Colors.transparent,
         centerTitle: true, // タイトルを中央揃え
         title: const Text(
-          'スマホ版サッカーノート', // すべて大文字に変換
+          'スマホ版サッカーノート',
           style: TextStyle(
             color: Colors.white,
             fontSize: 30, // フォントサイズを大きく
