@@ -23,7 +23,20 @@ class Calendar extends HookConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('カレンダー')),
+      appBar: AppBar(
+        centerTitle: true,
+        elevation: 4.0,
+        backgroundColor: Colors.green,
+        title: const Text(
+        'カレンダー',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 30,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 3.0,
+          fontFamily: 'Roboto',
+        ),
+      )),
       body: Column(
         children: [
           TableCalendar(

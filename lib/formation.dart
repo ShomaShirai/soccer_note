@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hair_app/player.dart';
+import 'package:go_router/go_router.dart';
 
 class Formation extends StatefulWidget {
   const Formation({super.key});
@@ -13,7 +12,8 @@ class Formation extends StatefulWidget {
 class _FormationState extends State<Formation> {
   List<Player> players = [];
   final GlobalKey _fieldKey = GlobalKey();
-  final TextEditingController individualGoodController = TextEditingController();
+  final TextEditingController individualGoodController =
+      TextEditingController();
   final TextEditingController individualBadController = TextEditingController();
   final TextEditingController teamGoodController = TextEditingController();
   final TextEditingController teamBadController = TextEditingController();
@@ -24,6 +24,10 @@ class _FormationState extends State<Formation> {
     _initializeFormation();
   }
 
+  void goCalender(BuildContext context) {
+    context.go('/calendar');
+  }
+
   void _initializeFormation() {
     double xCenter = 180;
 
@@ -32,13 +36,13 @@ class _FormationState extends State<Formation> {
       Offset(xCenter - 100, 230), // DF
       Offset(xCenter + 100, 230),
       Offset(xCenter - 50, 250),
-      Offset(xCenter + 50, 250), 
+      Offset(xCenter + 50, 250),
       Offset(xCenter - 100, 170), // MF
       Offset(xCenter + 100, 170),
       Offset(xCenter - 50, 190),
-      Offset(xCenter + 50, 190), 
+      Offset(xCenter + 50, 190),
       Offset(xCenter - 50, 100), // FW
-      Offset(xCenter + 50, 100), 
+      Offset(xCenter + 50, 100),
     ];
 
     players = List.generate(
@@ -48,20 +52,32 @@ class _FormationState extends State<Formation> {
   }
 
   void _updatePosition(int index, Offset newPosition) {
-    final RenderBox fieldBox = _fieldKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox fieldBox =
+        _fieldKey.currentContext!.findRenderObject() as RenderBox;
     final fieldSize = fieldBox.size;
     final fieldOffset = fieldBox.localToGlobal(Offset.zero);
 
-    double clampedX = newPosition.dx.clamp(fieldOffset.dx, fieldOffset.dx + fieldSize.width - 40);
-    double clampedY = newPosition.dy.clamp(fieldOffset.dy, fieldOffset.dy + fieldSize.height - 40);
+    double clampedX = newPosition.dx.clamp(
+      fieldOffset.dx,
+      fieldOffset.dx + fieldSize.width - 40,
+    );
+    double clampedY = newPosition.dy.clamp(
+      fieldOffset.dy,
+      fieldOffset.dy + fieldSize.height - 40,
+    );
 
     setState(() {
-      players[index].position = Offset(clampedX - fieldOffset.dx, clampedY - fieldOffset.dy);
+      players[index].position = Offset(
+        clampedX - fieldOffset.dx,
+        clampedY - fieldOffset.dy,
+      );
     });
   }
 
   void _editPlayer(int index) {
-    TextEditingController controller = TextEditingController(text: players[index].name);
+    TextEditingController controller = TextEditingController(
+      text: players[index].name,
+    );
     showDialog(
       context: context,
       builder: (context) {
@@ -110,7 +126,25 @@ class _FormationState extends State<Formation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('フォーメーション')),
+      appBar: AppBar(
+        centerTitle: true,
+        elevation: 4.0,
+        backgroundColor: Colors.green,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => goCalender(context),
+        ),
+        title: const Text(
+          'フォーメーション',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 3.0,
+            fontFamily: 'Roboto',
+          ),
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -118,7 +152,11 @@ class _FormationState extends State<Formation> {
               child: Stack(
                 key: _fieldKey,
                 children: [
-                  Image.asset('assets/images/coat2.jpg', width: 400, height: 400),
+                  Image.asset(
+                    'assets/images/coat2.jpg',
+                    width: 400,
+                    height: 400,
+                  ),
                   ...players.asMap().entries.map((entry) {
                     int index = entry.key;
                     Player player = entry.value;
@@ -135,10 +173,11 @@ class _FormationState extends State<Formation> {
                         ),
                       ),
                     );
-                  }).toList(),
+                  }),
                   Positioned.fill(
                     child: DragTarget<int>(
-                      builder: (context, candidateData, rejectedData) => Container(),
+                      builder:
+                          (context, candidateData, rejectedData) => Container(),
                       onAcceptWithDetails: (details) {
                         _updatePosition(details.data, details.offset);
                       },
@@ -192,7 +231,13 @@ class _FormationState extends State<Formation> {
         border: Border.all(color: Colors.white, width: 2),
       ),
       alignment: Alignment.center,
-      child: Text(player.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      child: Text(
+        player.name,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }

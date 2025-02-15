@@ -9,12 +9,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  String email = '';
-  String password = '';
-  bool hidePassword = true;
-
-  goCalender(BuildContext context) {
-    context.go('/calender');
+  void goCalender(BuildContext context) {
+    context.go('/calendar');
   }
 
   @override
@@ -22,14 +18,14 @@ class _LoginState extends State<Login> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        centerTitle: true, // タイトルを中央揃え
+        centerTitle: true,
         title: const Text(
           'スマホ版サッカーノート',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 30, // フォントサイズを大きく
-            fontWeight: FontWeight.bold, // 太字にする
-            letterSpacing: 3.0, // 文字間隔を広げる
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 3.0,
             fontFamily: 'Roboto',
           ),
         ),
@@ -55,90 +51,42 @@ class _LoginState extends State<Login> {
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(color: Colors.white60.withOpacity(0.2)),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Login',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  '脱ノートからスマホ時代へ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 3.0,
+                    fontFamily: 'Roboto',
                   ),
-                  Container(
-                    padding: const EdgeInsets.only(
-                      bottom: 6,
-                      left: 12,
-                      right: 12,
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  height: 80, // ボタンの高さを指定
+                  width: 200, // ボタンの幅を指定
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.green),
                     ),
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        icon: Icon(Icons.mail),
-                        hintText: 'hogehoge@qmail.com',
-                        labelText: 'Email Address',
+                    onPressed: () => goCalender(context),
+                    child: const Text(
+                      '始める',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 3.0,
+                        fontFamily: 'Roboto',
                       ),
-                      onChanged: (String value) {
-                        setState(() {
-                          email = value;
-                        });
-                      },
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.only(
-                      bottom: 6,
-                      left: 12,
-                      right: 12,
-                    ),
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextFormField(
-                      obscureText: hidePassword,
-                      decoration: InputDecoration(
-                        icon: const Icon(Icons.lock),
-                        labelText: 'Password',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            hidePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              hidePassword = !hidePassword;
-                            });
-                          },
-                        ),
-                      ),
-                      onChanged: (String value) {
-                        setState(() {
-                          password = value;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Login'),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
