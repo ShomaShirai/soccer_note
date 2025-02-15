@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hair_app/calendar.dart';
 import 'package:hair_app/login.dart';
-import 'package:hair_app/memo.dart';
-
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart'; // 追加: 日本語ローカライズ対応
 
 void main() {
-  initializeDateFormatting('ja').then((_) => runApp(MyApp())); //上の記述をこちらに変更します
+  initializeDateFormatting('ja').then((_) => runApp(
+    ProviderScope( // 修正: `ProviderScope` を正しく適用
+      child: MyApp(),
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -24,19 +27,13 @@ class MyApp extends StatelessWidget {
         path: '/calendar',
         builder: (context, state) => const Calendar(),
       ),
-      GoRoute(
-        path: '/memo',
-        builder: (context, state) => const PageC(),
-      ),
     ],
   );
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routeInformationProvider: router.routeInformationProvider,
-      routeInformationParser: router.routeInformationParser,
-      routerDelegate: router.routerDelegate,
+      routerConfig: router,
     );
   }
 }
