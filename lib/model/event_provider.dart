@@ -1,7 +1,7 @@
-import 'package:hair_app/event.dart';
+import 'package:hair_app/model/event.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'event_provider.g.dart';
+part '../generator/event_provider.g.dart';
 
 @riverpod
 class TableCalendarEventController extends _$TableCalendarEventController {

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hair_app/event.dart';
-import 'package:hair_app/event_provider.dart';
+import 'package:hair_app/model/event.dart';
+import 'package:hair_app/model/event_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:hair_app/component/formation.dart'; // フォーメーション画面のimport
 
 class Calendar extends HookConsumerWidget {
   const Calendar({super.key});
@@ -28,15 +29,16 @@ class Calendar extends HookConsumerWidget {
         elevation: 4.0,
         backgroundColor: Colors.green,
         title: const Text(
-        'カレンダー',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 30,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 3.0,
-          fontFamily: 'Roboto',
+          'カレンダー',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 3.0,
+            fontFamily: 'Roboto',
+          ),
         ),
-      )),
+      ),
       body: Column(
         children: [
           TableCalendar(
@@ -70,24 +72,41 @@ class Calendar extends HookConsumerWidget {
                     itemCount: selectedEventState.value.length,
                     itemBuilder: (context, index) {
                       final event = selectedEventState.value[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        child: ListTile(
-                          title: Text(event.opponent),
-                          subtitle: Text("${event.location} - ${event.time.hour}:${event.time.minute}"),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () async {
-                              bool? confirmDelete =
-                                  await showDeleteConfirmDialog(context);
-                              if (confirmDelete == true) {
-                                ref
-                                    .read(tableCalendarEventControllerProvider.notifier)
-                                    .removeEvent(event: event);
-                                updateSelectedEvents(selectedDayState.value);
-                              }
-                            },
+                      return GestureDetector(
+                        // 長押しでフォーメーション画面へ遷移
+                        onLongPress: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Formation(
+                                matchDate: event.dateTime.toIso8601String(),
+                                opponent: event.opponent,
+                              ),
+                            ),
+                          );
+                          // 戻った際、必要なら再読み込みなどを実施
+                        },
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: ListTile(
+                            title: Text(event.opponent),
+                            subtitle: Text(
+                                "${event.location} - ${event.time.hour}:${event.time.minute}"),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                bool? confirmDelete =
+                                    await showDeleteConfirmDialog(context);
+                                if (confirmDelete == true) {
+                                  ref
+                                      .read(tableCalendarEventControllerProvider
+                                          .notifier)
+                                      .removeEvent(event: event);
+                                  updateSelectedEvents(selectedDayState.value);
+                                }
+                              },
+                            ),
                           ),
                         ),
                       );
@@ -99,12 +118,12 @@ class Calendar extends HookConsumerWidget {
     );
   }
 
-  // イベントを追加するダイアログを表示
+  // イベント追加用ダイアログ
   Future<void> showAddEventDialog(
       BuildContext context, DateTime selectedDay, WidgetRef ref) async {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
-    DateTime? selectedTime; // 選択された時間を保持
+    DateTime? selectedTime;
 
     await showDialog(
       context: context,
@@ -135,11 +154,7 @@ class Calendar extends HookConsumerWidget {
                   child: TextField(
                     controller: descriptionController,
                     decoration: const InputDecoration(
-                      // contentPadding:
-                      //     EdgeInsets.symmetric(vertical: 40, horizontal: 10),
-                      border: OutlineInputBorder(),
-                      hintText: '試合会場',
-                    ),
+                        border: OutlineInputBorder(), hintText: '試合会場'),
                   ),
                 ),
                 Padding(
@@ -182,13 +197,13 @@ class Calendar extends HookConsumerWidget {
                                 selectedDay.month, selectedDay.day, 0, 0);
                           }
                           ref
-                            .read(tableCalendarEventControllerProvider.notifier)
-                            .addEvent(
-                              dateTime: selectedDay,
-                              opponent: titleController.text,
-                              time: selectedTime!,
-                              location: descriptionController.text,
-                            );
+                              .read(tableCalendarEventControllerProvider.notifier)
+                              .addEvent(
+                                dateTime: selectedDay,
+                                opponent: titleController.text,
+                                time: selectedTime!,
+                                location: descriptionController.text,
+                              );
                           Navigator.pop(context);
                         },
                         child: const Text(
@@ -207,7 +222,7 @@ class Calendar extends HookConsumerWidget {
     );
   }
 
-  // イベント削除の確認ダイアログ
+  // 削除確認ダイアログ
   Future<bool?> showDeleteConfirmDialog(BuildContext context) async {
     return await showDialog<bool>(
       context: context,

@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:hair_app/calendar.dart';
-import 'package:hair_app/login.dart';
-import 'package:hair_app/formation.dart';
+import 'package:hair_app/component/calendar.dart';
+import 'package:hair_app/component/login.dart';
+import 'package:hair_app/component/formation.dart';
+import 'package:hair_app/model/event.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/date_symbol_data_local.dart'; // 追加: 日本語ローカライズ対応
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() {
   initializeDateFormatting('ja').then((_) => runApp(
-    ProviderScope( // 修正: `ProviderScope` を正しく適用
-      child: MyApp(),
-    ),
-  ));
+        ProviderScope(
+          child: MyApp(),
+        ),
+      ));
 }
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
   final router = GoRouter(
-    initialLocation: '/formation',
+    initialLocation: '/login',
     routes: [
       GoRoute(
         path: '/login',
@@ -30,7 +31,14 @@ class MyApp extends StatelessWidget {
       ),
       GoRoute(
         path: '/formation',
-        builder: (context, state) => const Formation(),
+        builder: (context, state) {
+          // state.extra に Event 型のデータが渡される前提
+          final event = state.extra as Event;
+          return Formation(
+            matchDate: event.dateTime.toIso8601String(),
+            opponent: event.opponent,
+          );
+        },
       ),
     ],
   );

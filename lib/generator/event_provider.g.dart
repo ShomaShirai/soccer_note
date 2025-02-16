@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'event_provider.dart';
+part of '../model/event_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
