@@ -18,6 +18,9 @@ class _FormationState extends State<Formation> {
   final TextEditingController teamGoodController = TextEditingController();
   final TextEditingController teamBadController = TextEditingController();
 
+  int myScore = 0; // 得点の状態を管理
+  int opponentScore = 0; // 得点の状態を管理
+
   @override
   void initState() {
     super.initState();
@@ -32,17 +35,17 @@ class _FormationState extends State<Formation> {
     double xCenter = 180;
 
     List<Offset> positions = [
-      Offset(xCenter, 280), // GK
-      Offset(xCenter - 100, 230), // DF
-      Offset(xCenter + 100, 230),
-      Offset(xCenter - 50, 250),
-      Offset(xCenter + 50, 250),
-      Offset(xCenter - 100, 170), // MF
-      Offset(xCenter + 100, 170),
+      Offset(xCenter, 230), // GK
+      Offset(xCenter - 120, 170), // DF
+      Offset(xCenter + 120, 170),
       Offset(xCenter - 50, 190),
       Offset(xCenter + 50, 190),
-      Offset(xCenter - 50, 100), // FW
-      Offset(xCenter + 50, 100),
+      Offset(xCenter - 120, 110), // MF
+      Offset(xCenter + 120, 110),
+      Offset(xCenter - 50, 130),
+      Offset(xCenter + 50, 130),
+      Offset(xCenter - 50, 50), // FW
+      Offset(xCenter + 50, 50),
     ];
 
     players = List.generate(
@@ -74,6 +77,31 @@ class _FormationState extends State<Formation> {
     });
   }
 
+  void _increaseMyScore() {
+    setState(() {
+      myScore++;
+    });
+  }
+
+  void _decreaseMyScore() {
+    setState(() {
+      if (myScore > 0) myScore--; // スコアが0以下にならないようにする
+    });
+  }
+
+  void _increaseOpponentScore() {
+    setState(() {
+      opponentScore++;
+    });
+  }
+
+  void _decreaseOpponentScore() {
+    setState(() {
+      if (opponentScore > 0) opponentScore--; // スコアが0以下にならないようにする
+    });
+  }
+
+  // 選手を長押しした時に出す編集用ダイアログ
   void _editPlayer(int index) {
     TextEditingController controller = TextEditingController(
       text: players[index].name,
@@ -128,7 +156,6 @@ class _FormationState extends State<Formation> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        elevation: 4.0,
         backgroundColor: Colors.green,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -138,7 +165,7 @@ class _FormationState extends State<Formation> {
           'フォーメーション',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 30,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             letterSpacing: 3.0,
             fontFamily: 'Roboto',
@@ -164,7 +191,7 @@ class _FormationState extends State<Formation> {
                       left: player.position.dx,
                       top: player.position.dy,
                       child: GestureDetector(
-                        onLongPress: () => _editPlayer(index), // 長押しで編集できるようにする
+                        onLongPress: () => _editPlayer(index),
                         child: Draggable<int>(
                           data: index,
                           feedback: _buildPlayer(player, isDragging: true),
@@ -187,9 +214,51 @@ class _FormationState extends State<Formation> {
               ),
             ),
           ),
+          _buildScoreBoard(), // スコア表示エリアを追加
           _buildCommentSection(),
         ],
       ),
+    );
+  }
+
+  Widget _buildScoreBoard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildScoreColumn("自チーム", myScore, _increaseMyScore, _decreaseMyScore),
+          const SizedBox(width: 40), // 間隔を空ける
+          _buildScoreColumn("相手チーム", opponentScore, _increaseOpponentScore, _decreaseOpponentScore),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScoreColumn(String teamName, int score, VoidCallback onIncrease, VoidCallback onDecrease) {
+    return Column(
+      children: [
+        Text(
+          teamName,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Row(
+          children: [
+            IconButton(
+              onPressed: onIncrease,
+              icon: const Icon(Icons.arrow_drop_up, size: 40, color: Colors.green),
+            ),
+            Text(
+              '$score',
+              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+            IconButton(
+              onPressed: onDecrease,
+              icon: const Icon(Icons.arrow_drop_down, size: 40, color: Colors.red),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
