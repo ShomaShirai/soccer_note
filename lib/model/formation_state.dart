@@ -11,6 +11,8 @@ class FormationData {
   final String teamBadPoints;
   final String matchDate;  // 試合日時
   final String opponent;   // 対戦相手
+  final List<String> playerNames;  // 各選手の名前
+  final List<bool> isMyself;       // 各選手が自分かどうか
 
   FormationData({
     required this.playerPositions,
@@ -22,6 +24,8 @@ class FormationData {
     required this.teamBadPoints,
     required this.matchDate,
     required this.opponent,
+    required this.playerNames,
+    required this.isMyself,
   });
 
   FormationData copyWith({
@@ -34,6 +38,8 @@ class FormationData {
     String? teamBadPoints,
     String? matchDate,
     String? opponent,
+    List<String>? playerNames,
+    List<bool>? isMyself,
   }) {
     return FormationData(
       playerPositions: playerPositions ?? this.playerPositions,
@@ -45,6 +51,8 @@ class FormationData {
       teamBadPoints: teamBadPoints ?? this.teamBadPoints,
       matchDate: matchDate ?? this.matchDate,
       opponent: opponent ?? this.opponent,
+      playerNames: playerNames ?? this.playerNames,
+      isMyself: isMyself ?? this.isMyself,
     );
   }
 }
@@ -71,6 +79,8 @@ class FormationNotifier extends StateNotifier<Map<String, FormationData>> {
           teamBadPoints: '',
           matchDate: matchDate,
           opponent: opponent,
+          playerNames: List.generate(11, (index) => '${index + 1}'),
+          isMyself: List.generate(11, (_) => false),
         ),
       };
     }
@@ -151,6 +161,32 @@ class FormationNotifier extends StateNotifier<Map<String, FormationData>> {
       state = {
         ...state,
         key: data.copyWith(teamBadPoints: text),
+      };
+    }
+  }
+
+  void updatePlayerName(String matchDate, String opponent, int index, String newName) {
+    final key = _generateKey(matchDate, opponent);
+    if (state.containsKey(key)) {
+      final data = state[key]!;
+      final updatedNames = List<String>.from(data.playerNames);
+      updatedNames[index] = newName;
+      state = {
+        ...state,
+        key: data.copyWith(playerNames: updatedNames),
+      };
+    }
+  }
+
+  void updatePlayerIsMyself(String matchDate, String opponent, int index, bool isMyself) {
+    final key = _generateKey(matchDate, opponent);
+    if (state.containsKey(key)) {
+      final data = state[key]!;
+      final updatedIsMyself = List<bool>.from(data.isMyself);
+      updatedIsMyself[index] = isMyself;
+      state = {
+        ...state,
+        key: data.copyWith(isMyself: updatedIsMyself),
       };
     }
   }
